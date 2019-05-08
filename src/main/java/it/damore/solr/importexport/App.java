@@ -86,63 +86,71 @@ public class App {
 
   public static void main(String[] args) throws IOException, ParseException, URISyntaxException
   {
-
-    config = ConfigFactory.getConfigFromArgs(args);
-
-    includeFieldsEquals = config.getIncludeFieldSet()
-                                .stream()
-                                .filter(s -> s.getMatch() == MatchType.EQUAL)
-                                .collect(Collectors.toSet());
-
-    skipFieldsEquals = config.getSkipFieldSet()
-                             .stream()
-                             .filter(s -> s.getMatch() == MatchType.EQUAL)
-                             .collect(Collectors.toSet());
-    skipFieldsStartWith = config.getSkipFieldSet()
-                                .stream()
-                                .filter(s -> s.getMatch() == MatchType.STARTS_WITH)
-                                .collect(Collectors.toSet());
-    skipFieldsEndWith = config.getSkipFieldSet()
-                              .stream()
-                              .filter(s -> s.getMatch() == MatchType.ENDS_WITH)
-                              .collect(Collectors.toSet());
-    skipCount = config.getSkipCount();
-    commitAfter = config.getCommitAfter();
-
-    logger.info("Found config: " + config);
-
-    if (config.getUniqueKey() == null) {
-      readUniqueKeyFromSolrSchema();
-    }
-
-    try (HttpSolrClient client = new HttpSolrClient.Builder().withBaseSolrUrl(config.getSolrUrl())
-                                                             .build()) {
-
-      try {
-        switch (config.getActionType()) {
-          case EXPORT:
-          case BACKUP:
-
-            readAllDocuments(client, new File(config.getFileName()));
-            break;
-
-          case RESTORE:
-          case IMPORT:
-
-            writeAllDocuments(client, new File(config.getFileName()));
-            break;
-
-          default:
-            throw new RuntimeException("unsupported sitemap type");
+    if(args.length == 0) {
+		
+        String[] help = new String[]{"--help"};
+        config = ConfigFactory.getConfigFromArgs(help);
+        System.exit(0);
+        
+	} else {
+    
+        config = ConfigFactory.getConfigFromArgs(args);
+    
+        includeFieldsEquals = config.getIncludeFieldSet()
+                                    .stream()
+                                    .filter(s -> s.getMatch() == MatchType.EQUAL)
+                                    .collect(Collectors.toSet());
+    
+        skipFieldsEquals = config.getSkipFieldSet()
+                                 .stream()
+                                 .filter(s -> s.getMatch() == MatchType.EQUAL)
+                                 .collect(Collectors.toSet());
+        skipFieldsStartWith = config.getSkipFieldSet()
+                                    .stream()
+                                    .filter(s -> s.getMatch() == MatchType.STARTS_WITH)
+                                    .collect(Collectors.toSet());
+        skipFieldsEndWith = config.getSkipFieldSet()
+                                  .stream()
+                                  .filter(s -> s.getMatch() == MatchType.ENDS_WITH)
+                                  .collect(Collectors.toSet());
+        skipCount = config.getSkipCount();
+        commitAfter = config.getCommitAfter();
+    
+        logger.info("Found config: " + config);
+    
+        if (config.getUniqueKey() == null) {
+          readUniqueKeyFromSolrSchema();
         }
-
-        logger.info("Build complete.");
-
-      } catch (SolrServerException | IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
+    
+        try (HttpSolrClient client = new HttpSolrClient.Builder().withBaseSolrUrl(config.getSolrUrl())
+                                                                 .build()) {
+    
+          try {
+            switch (config.getActionType()) {
+              case EXPORT:
+              case BACKUP:
+    
+                readAllDocuments(client, new File(config.getFileName()));
+                break;
+    
+              case RESTORE:
+              case IMPORT:
+    
+                writeAllDocuments(client, new File(config.getFileName()));
+                break;
+    
+              default:
+                throw new RuntimeException("unsupported sitemap type");
+            }
+    
+            logger.info("Build complete.");
+    
+          } catch (SolrServerException | IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+        }
+	}
 
   }
 

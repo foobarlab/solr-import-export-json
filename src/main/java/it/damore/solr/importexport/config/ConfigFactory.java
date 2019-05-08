@@ -177,7 +177,7 @@ public class ConfigFactory {
       String footer = "\nPlease report issues at https://github.com/freedev/solr-import-export-json";
 
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("myapp", header, cliOptions, footer, true);
+      formatter.printHelp("solr-import-export-json", header, cliOptions, footer, true);
       System.exit(0);
     }
 
