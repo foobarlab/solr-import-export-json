@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+//import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -27,7 +27,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
+//import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.params.CursorMarkParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,17 +84,30 @@ public class App {
     return App.counter;
   }
 
-  public static void main(String[] args) throws IOException, ParseException, URISyntaxException
+  public static void main(String[] args) throws IOException//, ParseException, URISyntaxException
   {
     if(args.length == 0) {
 		
         String[] help = new String[]{"--help"};
-        config = ConfigFactory.getConfigFromArgs(help);
+        try {
+            config = ConfigFactory.getConfigFromArgs(help);
+        } catch(Exception e) {
+            System.out.println("Unknown error: " + e.getMessage());
+            System.exit(1);
+        }
         System.exit(0);
         
 	} else {
     
-        config = ConfigFactory.getConfigFromArgs(args);
+	    try {
+	        config = ConfigFactory.getConfigFromArgs(args);
+	    } catch(ParseException pe) {
+	        System.out.println("Error in passed arguments: " + pe.getMessage());
+            System.exit(1);
+	    } catch(Exception e) {
+	        System.out.println("Unknown error: " + e.getMessage());
+            System.exit(1);
+	    }
     
         includeFieldsEquals = config.getIncludeFieldSet()
                                     .stream()
@@ -145,9 +158,13 @@ public class App {
     
             logger.info("Build complete.");
     
-          } catch (SolrServerException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+          } catch (SolrServerException se) {
+              System.out.println("Solr error: "+se.getMessage());
+              se.printStackTrace();
+          } catch(IOException ioe) {
+              System.out.println("I/O error: "+ioe.getMessage());
+          } catch(Exception e) {
+              System.out.println("Unknown error: "+e.getMessage());
           }
         }
 	}
@@ -234,7 +251,7 @@ public class App {
    */
   private static void writeAllDocuments(HttpSolrClient client, File outputFile) throws FileNotFoundException, IOException, SolrServerException
   {
-    AtomicInteger counter = new AtomicInteger(10000);
+    //AtomicInteger counter = new AtomicInteger(10000);
     if (!config.getDryRun() && config.getDeleteAll()) {
       logger.info("delete all!");
       client.deleteByQuery("*:*");
